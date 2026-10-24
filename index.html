@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sizely — clothes and shoe sizes between countries</title>
+  <meta name="description" content="Turn a US, UK or EU size into the others, or get your size from a measurement. For shoes, women's and men's clothes. Runs in your browser; nothing you type is uploaded.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e8a13a'/%3E%3Crect x='6' y='12' width='20' height='8' rx='2' fill='%23fff'/%3E%3Cg fill='%23e8a13a'%3E%3Crect x='9' y='12' width='1.4' height='4'/%3E%3Crect x='13' y='12' width='1.4' height='5'/%3E%3Crect x='17' y='12' width='1.4' height='4'/%3E%3Crect x='21' y='12' width='1.4' height='5'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1><span class="logo" aria-hidden="true"></span> Sizely</h1>
+      <p class="tag">Your size in another country's sizes. Pick what you know, or measure once and read it off.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="tabs" role="tablist" aria-label="What are you sizing">
+      <button class="tab" role="tab" id="tab-shoes" aria-controls="panel-shoes" aria-selected="true">Shoes</button>
+      <button class="tab" role="tab" id="tab-women" aria-controls="panel-women" aria-selected="false">Women's clothes</button>
+      <button class="tab" role="tab" id="tab-men" aria-controls="panel-men" aria-selected="false">Men's clothes</button>
+    </div>
+
+    <!-- SHOES -->
+    <section class="panel" id="panel-shoes" role="tabpanel" aria-labelledby="tab-shoes">
+      <div class="card">
+        <div class="seg" role="radiogroup" aria-label="Whose shoes">
+          <label><input type="radio" name="who" value="men" checked> Men</label>
+          <label><input type="radio" name="who" value="women"> Women</label>
+          <label><input type="radio" name="who" value="kids"> Kids</label>
+        </div>
+
+        <div class="mode" role="radiogroup" aria-label="How to find the size">
+          <label><input type="radio" name="shoe-mode" value="size" checked> I know a size</label>
+          <label><input type="radio" name="shoe-mode" value="length"> I'll measure my foot</label>
+        </div>
+
+        <div class="field-row" data-shoe="size">
+          <label class="field">
+            <span>Size</span>
+            <input id="shoe-size" inputmode="decimal" autocomplete="off" placeholder="e.g. 9">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="shoe-sys">
+              <option value="us">US</option>
+              <option value="uk">UK</option>
+              <option value="eu">EU</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-row hidden" data-shoe="length">
+          <label class="field">
+            <span>Foot length</span>
+            <input id="foot-len" inputmode="decimal" autocomplete="off" placeholder="e.g. 26">
+          </label>
+          <label class="field">
+            <span>unit</span>
+            <select id="foot-unit">
+              <option value="cm">cm</option>
+              <option value="in">inches</option>
+            </select>
+          </label>
+          <p class="hint">Stand on paper, heel to a wall, and mark your longest toe. Measure the bigger foot.</p>
+        </div>
+      </div>
+      <div class="out" id="shoe-out" aria-live="polite"></div>
+    </section>
+
+    <!-- WOMEN -->
+    <section class="panel hidden" id="panel-women" role="tabpanel" aria-labelledby="tab-women">
+      <div class="card">
+        <div class="mode" role="radiogroup" aria-label="How to find the size">
+          <label><input type="radio" name="w-mode" value="size" checked> I know a size</label>
+          <label><input type="radio" name="w-mode" value="measure"> I'll measure</label>
+        </div>
+
+        <div class="field-row" data-w="size">
+          <label class="field">
+            <span>Size</span>
+            <input id="w-size" autocomplete="off" placeholder="e.g. 12 or M">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="w-sys">
+              <option value="uk">UK</option>
+              <option value="us">US</option>
+              <option value="eu">EU</option>
+              <option value="alpha">S / M / L</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-row hidden" data-w="measure">
+          <label class="field">
+            <span>Measurement</span>
+            <input id="w-measure" inputmode="decimal" autocomplete="off" placeholder="e.g. 92">
+          </label>
+          <label class="field">
+            <span>is my</span>
+            <select id="w-kind">
+              <option value="bust">bust (cm)</option>
+              <option value="waist">waist (cm)</option>
+              <option value="hip">hip (cm)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="out" id="w-out" aria-live="polite"></div>
+    </section>
+
+    <!-- MEN -->
+    <section class="panel hidden" id="panel-men" role="tabpanel" aria-labelledby="tab-men">
+      <div class="card">
+        <div class="seg" role="radiogroup" aria-label="What garment">
+          <label><input type="radio" name="m-what" value="top" checked> Top / shirt</label>
+          <label><input type="radio" name="m-what" value="trouser"> Trousers</label>
+        </div>
+
+        <div data-m="top">
+          <div class="mode" role="radiogroup" aria-label="How to find the size">
+            <label><input type="radio" name="m-mode" value="size" checked> I know a size</label>
+            <label><input type="radio" name="m-mode" value="measure"> I'll measure my chest</label>
+          </div>
+          <div class="field-row" data-mtop="size">
+            <label class="field">
+              <span>Size</span>
+              <input id="m-size" autocomplete="off" placeholder="e.g. L or 50">
+            </label>
+            <label class="field">
+              <span>in</span>
+              <select id="m-sys">
+                <option value="alpha">S / M / L</option>
+                <option value="eu">EU</option>
+              </select>
+            </label>
+          </div>
+          <div class="field-row hidden" data-mtop="measure">
+            <label class="field">
+              <span>Chest</span>
+              <input id="m-chest" inputmode="decimal" autocomplete="off" placeholder="e.g. 100">
+            </label>
+            <span class="unit-lbl">cm, round the fullest part</span>
+          </div>
+        </div>
+
+        <div class="field-row hidden" data-m="trouser">
+          <label class="field">
+            <span>Waist</span>
+            <input id="m-waist" inputmode="decimal" autocomplete="off" placeholder="e.g. 32">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="m-waist-unit">
+              <option value="in">inches</option>
+              <option value="cm">cm</option>
+              <option value="eu">EU label</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="out" id="m-out" aria-live="polite"></div>
+    </section>
+
+    <div class="actions">
+      <button id="share" class="ghost" type="button">Copy a link to this</button>
+      <span id="share-done" class="share-done" aria-live="polite"></span>
+    </div>
+
+    <section class="note">
+      <h2>One thing worth knowing</h2>
+      <p>Sizing is not standardised. Two brands with the same label can be a size apart, which is why
+      fit, not price, is the top reason clothes and shoes get sent back. So treat a converted size as a
+      starting point, and where you can, go by the measurement: foot length for shoes, chest, bust or
+      waist for clothes. That is the one number that does not change between countries.</p>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Everything runs in your browser. Nothing you type is uploaded. <a href="https://github.com/johanthegoatt/sizely">Source</a>.</p>
+  </footer>
+
+  <!-- Tam the tape measure -->
+  <div id="tam-dock" class="tam-dock">
+    <button id="tam-hide" class="tam-hide" type="button" aria-label="Hide Tam">tuck away</button>
+    <div id="tam-bubble" class="tam-bubble" role="status" aria-live="polite"></div>
+    <button id="tam" class="tam" type="button" data-mood="sleepy" aria-label="Tam the tape measure. Tap for a tip.">
+      <span class="tam-body" aria-hidden="true">
+        <span class="tam-ticks"></span>
+        <span class="tam-face">
+          <span class="tam-eye l"></span>
+          <span class="tam-eye r"></span>
+          <span class="tam-mouth"></span>
+        </span>
+      </span>
+    </button>
+  </div>
+
+  <script src="src/core.js"></script>
+  <script src="src/tam.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
