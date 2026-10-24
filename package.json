@@ -1,0 +1,10 @@
+{
+  "name": "sizely",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Your clothes and shoe size in another country's sizes, or from a body measurement. Shoes, women's and men's. Runs in the browser, nothing uploaded. With Tam the tape measure.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
