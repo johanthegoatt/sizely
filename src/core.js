@@ -260,6 +260,80 @@
     return { ok: true, inch: inch, cm: Math.round(inch * IN / 10), eu: inch + 16 };
   }
 
+  // ---------------------------------------------------------- kids' clothes
+
+  // Children's clothing splits by system in an awkward way: Europe sizes by the
+  // child's HEIGHT in centimetres (the EU number is the height), while the US
+  // and UK go by age, which only roughly tracks height because children of the
+  // same age vary a lot. Height is the one fixed anchor, so Sizely keys on it:
+  // each row is a height band in cm, the EU size (its upper bound), the common
+  // US size (toddler "T" sizes, then numbers) and the UK age label. Ages are a
+  // guide; the height is what to trust. Figures follow widely published
+  // international children's size charts.
+  var KIDS = [
+    { h: [80, 86],  eu: 86,  us: "18-24M", uk: "18-24m" },
+    { h: [86, 92],  eu: 92,  us: "2T",     uk: "2-3y" },
+    { h: [92, 98],  eu: 98,  us: "3T",     uk: "3-4y" },
+    { h: [98, 104], eu: 104, us: "4T",     uk: "4-5y" },
+    { h: [104, 110], eu: 110, us: "5",     uk: "5-6y" },
+    { h: [110, 116], eu: 116, us: "6",     uk: "6-7y" },
+    { h: [116, 122], eu: 122, us: "7",     uk: "7-8y" },
+    { h: [122, 128], eu: 128, us: "8",     uk: "8-9y" },
+    { h: [128, 140], eu: 140, us: "10",    uk: "9-10y" },
+    { h: [140, 152], eu: 152, us: "12",    uk: "11-12y" }
+  ];
+
+  // A kid's size from height in cm, the recommended route. A height between two
+  // sizes rounds UP to the roomier one (a child grows into it, and a size too
+  // small can't be let out); the snugger size is noted. Off the chart either
+  // way is refused rather than snapped to an end.
+  function kidsFromHeight(cm) {
+    var v = numify(cm);
+    if (!(v > 0)) return { ok: false, reason: "bad" };
+    var first = KIDS[0], last = KIDS[KIDS.length - 1];
+    if (v < first.h[0] - 0.5) return { ok: false, reason: "too-small" };
+    if (v > last.h[1] + 0.5) return { ok: false, reason: "too-big" };
+    var pick = last, snug = null;
+    for (var i = 0; i < KIDS.length; i++) {
+      if (v <= KIDS[i].h[1] + 1e-9) {
+        pick = KIDS[i];
+        snug = i > 0 ? KIDS[i - 1] : null;
+        break;
+      }
+    }
+    // "Between" when the height is above the snugger size's top by a clear
+    // margin, i.e. it genuinely sits inside this band rather than on its edge.
+    var between = !!snug && v > snug.h[1] + 0.5 && v < pick.h[1] - 0.5;
+    return {
+      ok: true, height: v,
+      eu: pick.eu, us: pick.us, uk: pick.uk,
+      between: between,
+      snug: between ? { eu: snug.eu, us: snug.us, uk: snug.uk } : null,
+      note: "Measure the child's standing height without shoes. Ages are a guide; go by the height."
+    };
+  }
+
+  // Convert a kid's size typed in one system to the others. EU is matched on
+  // the number (the height), US on its label (2T, 5, 10...). UK age labels are
+  // too loose to type, so the UK comes out of a match, not into one.
+  function convertKids(value, fromSys) {
+    var row = null;
+    if (fromSys === "eu") {
+      var n = numify(value);
+      for (var i = 0; i < KIDS.length; i++) if (KIDS[i].eu === n) { row = KIDS[i]; break; }
+    } else if (fromSys === "us") {
+      var a = String(value).toUpperCase().replace(/\s+/g, "");
+      for (var j = 0; j < KIDS.length; j++) if (String(KIDS[j].us).toUpperCase() === a) { row = KIDS[j]; break; }
+    }
+    if (!row) return { ok: false, reason: "off-chart" };
+    return {
+      ok: true, from: fromSys,
+      eu: row.eu, us: row.us, uk: row.uk,
+      height: row.h[0] + "-" + row.h[1],
+      note: "Ages and US sizes vary by brand; the height band is the fixed one."
+    };
+  }
+
   // ------------------------------------------------------------ share link
 
   // The whole lookup goes in the URL fragment, which browsers never send to a
@@ -282,11 +356,12 @@
   }
 
   return {
-    SHOES: SHOES, WOMENS: WOMENS, MENS_TOP: MENS_TOP, SYS_LABEL: SYS_LABEL, IN: IN,
+    SHOES: SHOES, WOMENS: WOMENS, MENS_TOP: MENS_TOP, KIDS: KIDS, SYS_LABEL: SYS_LABEL, IN: IN,
     numify: numify,
     findShoe: findShoe, convertShoe: convertShoe, shoeFromLength: shoeFromLength,
     findWomens: findWomens, convertWomens: convertWomens, womensFromMeasure: womensFromMeasure,
     mensTopFromChest: mensTopFromChest, convertMensTop: convertMensTop, trouserWaist: trouserWaist,
+    kidsFromHeight: kidsFromHeight, convertKids: convertKids,
     pack: pack, unpack: unpack
   };
 });
