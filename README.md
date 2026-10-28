@@ -2,8 +2,8 @@
 
 Your clothes and shoe size in another country's sizes. Pick a system you know
 (US, UK or EU) and read off the rest, or measure once and let Sizely find the
-size for you. Covers shoes, women's clothes and men's clothes. It runs in the
-browser; nothing you type is uploaded.
+size for you. Covers shoes, women's clothes, men's clothes and kids' clothes.
+It runs in the browser; nothing you type is uploaded.
 
 Live: https://sizely.johanthegoat.xyz
 
@@ -46,8 +46,12 @@ Sizely does two things about that:
 
 Shoe sizes are anchored on foot length (the ISO 9407 / Mondopoint idea: the
 size is cut for a foot of a given length). Clothing sizes are anchored on the
-body measurement in centimetres. The country-to-country numbers follow the
-widely published conversion charts (women's UK = US + 4, EU = UK + 28; men's
+body measurement in centimetres. Kids' clothes are anchored on the child's
+height: Europe sizes children by height in centimetres (the EU number is the
+height), while the US and UK go by age, which only roughly tracks height, so
+the height band is treated as the fixed one and the ages as a guide. The
+country-to-country numbers follow the widely published conversion charts
+(women's UK = US + 4, EU = UK + 28; men's
 jacket EU ≈ chest in cm ÷ 2; a trouser label is the waist itself). Treat them
 as a well-aligned guide, not a guarantee, and check a brand's own size guide
 where it matters.

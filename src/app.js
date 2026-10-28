@@ -7,7 +7,7 @@
   var on = function (el, ev, fn) { if (el) el.addEventListener(ev, fn); };
 
   // ---- tabs ----
-  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"]];
+  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"]];
   var current = "shoes";
 
   function show(which) {
@@ -130,10 +130,44 @@
     }
   }
 
+  // ---- kids ----
+  function runKids() {
+    var host = $("k-out");
+    var mode = toggleByRadio("k-mode", "data-k", $("panel-kids"));
+    if (mode === "height") {
+      var h = $("k-height").value;
+      if (!String(h).trim()) { host.innerHTML = ""; return; }
+      var r = S.kidsFromHeight(h);
+      if (!r.ok) {
+        bad(host, r.reason === "too-small" ? "That's below my chart's smallest size." :
+          r.reason === "too-big" ? "That's past my chart's largest size; it may be an adult size by now." :
+          "Type the child's height in centimetres.");
+        if (T) T.react("off"); return;
+      }
+      var grid = cell("EU", r.eu) + cell("US", r.us) + cell("UK age", r.uk);
+      var html = '<div class="result"><h3>For a child ' + esc(h) + ' cm tall</h3><div class="grid">' + grid + "</div>";
+      html += '<p class="msg' + (r.between ? " between" : "") + '">' + esc(r.note) + (r.between ? " They're between sizes, so this is the roomier pick." : "") + "</p>";
+      if (r.snug) html += '<p class="snug">Snugger fit: EU ' + r.snug.eu + " · US " + r.snug.us + " · UK " + r.snug.uk + "</p>";
+      host.innerHTML = html + "</div>";
+      if (T) T.react(r.between ? "between" : "ok");
+    } else {
+      var val = $("k-size").value, sys = $("k-sys").value;
+      if (!String(val).trim()) { host.innerHTML = ""; return; }
+      var c = S.convertKids(val, sys);
+      if (!c.ok) { bad(host, "That size isn't on the chart. Try a US size like 4T or 6, an EU number, or use the height."); if (T) T.react("off"); return; }
+      var g = cell("EU", c.eu) + cell("US", c.us) + cell("UK age", c.uk);
+      var out = '<div class="result"><h3>Kids\', from ' + (sys === "eu" ? "EU " : "US ") + esc(val) + '</h3><div class="grid">' + g + "</div>";
+      out += '<p class="msg">About ' + c.height + ' cm tall. ' + esc(c.note) + "</p>";
+      host.innerHTML = out + "</div>";
+      if (T) T.react("ok");
+    }
+  }
+
   function run() {
     if (current === "shoes") runShoes();
     else if (current === "women") runWomen();
-    else runMen();
+    else if (current === "men") runMen();
+    else if (current === "kids") runKids();
   }
 
   // react to any input or choice
@@ -154,6 +188,12 @@
       return wm === "measure"
         ? { tab: "women", mode: "measure", value: $("w-measure").value, kind: $("w-kind").value }
         : { tab: "women", mode: "size", value: $("w-size").value, sys: $("w-sys").value };
+    }
+    if (current === "kids") {
+      var km = (document.querySelector('input[name="k-mode"]:checked') || {}).value;
+      return km === "size"
+        ? { tab: "kids", mode: "size", value: $("k-size").value, sys: $("k-sys").value }
+        : { tab: "kids", mode: "height", value: $("k-height").value };
     }
     var what = (document.querySelector('input[name="m-what"]:checked') || {}).value;
     if (what === "trouser") return { tab: "men", what: "trouser", value: $("m-waist").value, unit: $("m-waist-unit").value };
@@ -183,6 +223,11 @@
       if (s.what === "trouser") { setVal("m-waist", s.value); setVal("m-waist-unit", s.unit); }
       else { setRadio("m-mode", s.mode || "size"); if (s.mode === "measure") setVal("m-chest", s.value); else { setVal("m-size", s.value); setVal("m-sys", s.sys); } }
       show("men");
+    } else if (s.tab === "kids") {
+      setRadio("k-mode", s.mode || "height");
+      if (s.mode === "size") { setVal("k-size", s.value); setVal("k-sys", s.sys); }
+      else setVal("k-height", s.value);
+      show("kids");
     }
   }
 

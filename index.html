@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sizely — clothes and shoe sizes between countries</title>
-  <meta name="description" content="Turn a US, UK or EU size into the others, or get your size from a measurement. For shoes, women's and men's clothes. Runs in your browser; nothing you type is uploaded.">
+  <meta name="description" content="Turn a US, UK or EU size into the others, or get your size from a measurement. For shoes, women's, men's and kids' clothes. Runs in your browser; nothing you type is uploaded.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e8a13a'/%3E%3Crect x='6' y='12' width='20' height='8' rx='2' fill='%23fff'/%3E%3Cg fill='%23e8a13a'%3E%3Crect x='9' y='12' width='1.4' height='4'/%3E%3Crect x='13' y='12' width='1.4' height='5'/%3E%3Crect x='17' y='12' width='1.4' height='4'/%3E%3Crect x='21' y='12' width='1.4' height='5'/%3E%3C/g%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -21,6 +21,7 @@
       <button class="tab" role="tab" id="tab-shoes" aria-controls="panel-shoes" aria-selected="true">Shoes</button>
       <button class="tab" role="tab" id="tab-women" aria-controls="panel-women" aria-selected="false">Women's clothes</button>
       <button class="tab" role="tab" id="tab-men" aria-controls="panel-men" aria-selected="false">Men's clothes</button>
+      <button class="tab" role="tab" id="tab-kids" aria-controls="panel-kids" aria-selected="false">Kids' clothes</button>
     </div>
 
     <!-- SHOES -->
@@ -163,6 +164,40 @@
         </div>
       </div>
       <div class="out" id="m-out" aria-live="polite"></div>
+    </section>
+
+    <!-- KIDS -->
+    <section class="panel hidden" id="panel-kids" role="tabpanel" aria-labelledby="tab-kids">
+      <div class="card">
+        <div class="mode" role="radiogroup" aria-label="How to find the size">
+          <label><input type="radio" name="k-mode" value="height" checked> I'll use the child's height</label>
+          <label><input type="radio" name="k-mode" value="size"> I know a size</label>
+        </div>
+
+        <div class="field-row" data-k="height">
+          <label class="field">
+            <span>Height</span>
+            <input id="k-height" inputmode="decimal" autocomplete="off" placeholder="e.g. 104">
+          </label>
+          <span class="unit-lbl">cm, standing, no shoes</span>
+        </div>
+
+        <div class="field-row hidden" data-k="size">
+          <label class="field">
+            <span>Size</span>
+            <input id="k-size" autocomplete="off" placeholder="e.g. 4T or 110">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="k-sys">
+              <option value="us">US (e.g. 4T, 6)</option>
+              <option value="eu">EU (height)</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint">Europe sizes children by height in centimetres; the US and UK go by age. Height is the one fixed number, so it's the safest to go by.</p>
+      </div>
+      <div class="out" id="k-out" aria-live="polite"></div>
     </section>
 
     <div class="actions">
