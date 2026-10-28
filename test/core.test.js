@@ -119,3 +119,43 @@ test("a share link round-trips the lookup", function () {
 test("a broken share link is refused, not thrown", function () {
   assert.strictEqual(S.unpack("@@@not-base64@@@"), null);
 });
+
+test("kids' size from height anchors on the EU height number", () => {
+  const r = S.kidsFromHeight(104);
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.eu, 104);
+  assert.strictEqual(r.us, "4T");
+  assert.strictEqual(r.uk, "4-5y");
+});
+
+test("a height between kids' sizes rounds up to the roomier one", () => {
+  const r = S.kidsFromHeight(101); // between the 98 and 104 bands
+  assert.strictEqual(r.eu, 104);   // rounds up
+  assert.strictEqual(r.between, true);
+  assert.strictEqual(r.snug.eu, 98);
+});
+
+test("a kid's height off the chart is refused, not snapped", () => {
+  assert.strictEqual(S.kidsFromHeight(40).ok, false);
+  assert.strictEqual(S.kidsFromHeight(300).ok, false);
+  assert.strictEqual(S.kidsFromHeight("nope").ok, false);
+});
+
+test("convert a kid's US toddler size to EU height and UK age", () => {
+  const r = S.convertKids("2T", "us");
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.eu, 92);
+  assert.strictEqual(r.uk, "2-3y");
+  assert.strictEqual(r.height, "86-92");
+});
+
+test("convert a kid's EU size number to the US and UK labels", () => {
+  const r = S.convertKids(110, "eu");
+  assert.strictEqual(r.us, "5");
+  assert.strictEqual(r.uk, "5-6y");
+});
+
+test("an unknown kid's size is off-chart", () => {
+  assert.strictEqual(S.convertKids(999, "eu").ok, false);
+  assert.strictEqual(S.convertKids("99Z", "us").ok, false);
+});
