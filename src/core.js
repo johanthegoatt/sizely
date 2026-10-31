@@ -339,6 +339,93 @@
   // The whole lookup goes in the URL fragment, which browsers never send to a
   // server, so a shared link opens on the same answer without anything leaving
   // the device.
+  // ---------------------------------------------------------------- rings
+
+  // Ring sizes are the one thing you genuinely can't eyeball. The fixed anchor
+  // is the inner circumference in millimetres: ISO 8653 defines the EU/ISO size
+  // as exactly that number (a 54 mm circumference is EU 54). The US scale and
+  // the UK letters have no clean formula to mm and differ a little between
+  // charts, so they're given from a lookup and flagged as approximate; the EU
+  // number and the diameter are exact. Circumferences are the commonly
+  // published half-size steps (US 6 = 51.9 mm, US 7 = 54.4 mm line up with the
+  // standard chart).
+  var RINGS = [
+    { circ: 44.2, us: 3, uk: "F" }, { circ: 45.5, us: 3.5, uk: "G" },
+    { circ: 46.8, us: 4, uk: "H" }, { circ: 48.0, us: 4.5, uk: "I" },
+    { circ: 49.3, us: 5, uk: "J" }, { circ: 50.6, us: 5.5, uk: "K" },
+    { circ: 51.9, us: 6, uk: "L" }, { circ: 53.1, us: 6.5, uk: "M" },
+    { circ: 54.4, us: 7, uk: "N" }, { circ: 55.7, us: 7.5, uk: "O" },
+    { circ: 57.0, us: 8, uk: "P" }, { circ: 58.3, us: 8.5, uk: "Q" },
+    { circ: 59.5, us: 9, uk: "R" }, { circ: 60.8, us: 9.5, uk: "S" },
+    { circ: 62.1, us: 10, uk: "T" }, { circ: 63.4, us: 10.5, uk: "U" },
+    { circ: 64.6, us: 11, uk: "V" }, { circ: 65.9, us: 11.5, uk: "W" },
+    { circ: 67.2, us: 12, uk: "Y" }, { circ: 68.5, us: 12.5, uk: "Z" }
+  ];
+  var PI = Math.PI;
+  function round1(x) { return Math.round(x * 10) / 10; }
+
+  function ringRow(row, off) {
+    return {
+      ok: true,
+      circMm: round1(row.circ),
+      diameterMm: round1(row.circ / PI),
+      us: row.us, uk: row.uk,
+      eu: Math.round(row.circ),       // ISO 8653: EU size == inner circumference
+      off: !!off,
+      approxUsUk: true                // US and UK are from a chart, not a formula
+    };
+  }
+
+  // From the inner circumference (what you get measuring a string round the
+  // finger, or an existing ring's inside with a tape).
+  function ringFromCircumference(value, unit) {
+    var n = numify(value);
+    if (!isFinite(n)) return { ok: false, reason: "bad" };
+    var mm = unit === "in" ? n * IN : n;
+    if (mm < RINGS[0].circ - 2) return { ok: false, reason: "too-small" };
+    if (mm > RINGS[RINGS.length - 1].circ + 2) return { ok: false, reason: "too-big" };
+    var best = 0, bd = Infinity;
+    for (var i = 0; i < RINGS.length; i++) {
+      var d = Math.abs(RINGS[i].circ - mm);
+      if (d < bd - 1e-9) { bd = d; best = i; }
+    }
+    var out = ringRow(RINGS[best], bd > 0.5);
+    out.inputCircMm = round1(mm);
+    return out;
+  }
+
+  // From the inside diameter (measuring across an existing ring).
+  function ringFromDiameter(value, unit) {
+    var n = numify(value);
+    if (!isFinite(n)) return { ok: false, reason: "bad" };
+    var mm = unit === "in" ? n * IN : n;
+    return ringFromCircumference(mm * PI, "mm");
+  }
+
+  // Convert a known size in one system to the rest. EU is the circumference, so
+  // it goes straight through the circumference lookup.
+  function convertRing(value, fromSys) {
+    var f = String(fromSys == null ? "" : fromSys).toLowerCase();
+    if (f === "eu") return ringFromCircumference(value, "mm");
+    if (f === "us") {
+      var n = numify(value);
+      if (!isFinite(n)) return { ok: false, reason: "bad" };
+      var best = -1, bd = Infinity;
+      for (var i = 0; i < RINGS.length; i++) {
+        var d = Math.abs(RINGS[i].us - n);
+        if (d < bd - 1e-9) { bd = d; best = i; }
+      }
+      if (best < 0 || bd > 0.75) return { ok: false, reason: "off-chart" };
+      return ringRow(RINGS[best], bd > 1e-9);
+    }
+    if (f === "uk") {
+      var key = String(value == null ? "" : value).trim().toUpperCase();
+      for (var j = 0; j < RINGS.length; j++) if (RINGS[j].uk === key) return ringRow(RINGS[j], false);
+      return { ok: false, reason: "off-chart" };
+    }
+    return { ok: false, reason: "bad" };
+  }
+
   function pack(state) {
     var json = JSON.stringify(state);
     var b64 = typeof btoa === "function" ? btoa(unescape(encodeURIComponent(json))) : Buffer.from(json, "utf8").toString("base64");
@@ -362,6 +449,7 @@
     findWomens: findWomens, convertWomens: convertWomens, womensFromMeasure: womensFromMeasure,
     mensTopFromChest: mensTopFromChest, convertMensTop: convertMensTop, trouserWaist: trouserWaist,
     kidsFromHeight: kidsFromHeight, convertKids: convertKids,
+    RINGS: RINGS, ringFromCircumference: ringFromCircumference, ringFromDiameter: ringFromDiameter, convertRing: convertRing,
     pack: pack, unpack: unpack
   };
 });
