@@ -23,6 +23,11 @@ Sizely does two things about that:
 - **Start from a measurement.** Foot length for shoes, chest, bust, waist or
   hip for clothes. This is the reliable path, because a measurement in
   centimetres means the same thing everywhere; a label doesn't.
+- **Rings.** The one size you can't eyeball. Measure around the finger or across
+  a ring that fits and get the US number, the UK letter and the EU/ISO size. The
+  EU/ISO number is the exact inside circumference in millimetres (ISO 8653); the
+  US and UK sizes come from the standard chart, so they're the nearest match, not
+  a formula, and a between-sizes measurement rounds up to the safer fit.
 
 ## How it's built
 
