@@ -22,6 +22,7 @@
       <button class="tab" role="tab" id="tab-women" aria-controls="panel-women" aria-selected="false">Women's clothes</button>
       <button class="tab" role="tab" id="tab-men" aria-controls="panel-men" aria-selected="false">Men's clothes</button>
       <button class="tab" role="tab" id="tab-kids" aria-controls="panel-kids" aria-selected="false">Kids' clothes</button>
+      <button class="tab" role="tab" id="tab-rings" aria-controls="panel-rings" aria-selected="false">Rings</button>
     </div>
 
     <!-- SHOES -->
@@ -198,6 +199,61 @@
         <p class="hint">Europe sizes children by height in centimetres; the US and UK go by age. Height is the one fixed number, so it's the safest to go by.</p>
       </div>
       <div class="out" id="k-out" aria-live="polite"></div>
+    </section>
+
+    <section class="panel hidden" id="panel-rings" role="tabpanel" aria-labelledby="tab-rings">
+      <div class="card">
+        <div class="mode" role="radiogroup" aria-label="How to find the ring size">
+          <label><input type="radio" name="r-mode" value="circ" checked> Measure around the finger</label>
+          <label><input type="radio" name="r-mode" value="dia"> Measure across a ring</label>
+          <label><input type="radio" name="r-mode" value="size"> I know a size</label>
+        </div>
+
+        <div class="field-row" data-r="circ">
+          <label class="field">
+            <span>Circumference</span>
+            <input id="r-circ" inputmode="decimal" autocomplete="off" placeholder="e.g. 54.4">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="r-circ-unit">
+              <option value="mm">mm</option>
+              <option value="in">inches</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-row hidden" data-r="dia">
+          <label class="field">
+            <span>Inside diameter</span>
+            <input id="r-dia" inputmode="decimal" autocomplete="off" placeholder="e.g. 17.3">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="r-dia-unit">
+              <option value="mm">mm</option>
+              <option value="in">inches</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-row hidden" data-r="size">
+          <label class="field">
+            <span>Size</span>
+            <input id="r-size" autocomplete="off" placeholder="e.g. 7, N or 54">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="r-sys">
+              <option value="us">US</option>
+              <option value="uk">UK</option>
+              <option value="eu">EU / ISO (mm)</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint">Wrap a strip of paper round the finger and measure its length, or measure straight across the inside of a ring that already fits. The EU/ISO number is the inside circumference in millimetres; US and UK come from a chart, so treat them as close, not exact.</p>
+      </div>
+      <div class="out" id="r-out" aria-live="polite"></div>
     </section>
 
     <div class="actions">

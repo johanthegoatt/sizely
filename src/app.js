@@ -7,7 +7,7 @@
   var on = function (el, ev, fn) { if (el) el.addEventListener(ev, fn); };
 
   // ---- tabs ----
-  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"]];
+  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"]];
   var current = "shoes";
 
   function show(which) {
@@ -163,11 +163,35 @@
     }
   }
 
+  // ---- rings ----
+  function runRings() {
+    var host = $("r-out");
+    var mode = toggleByRadio("r-mode", "data-r", $("panel-rings"));
+    var r, v;
+    if (mode === "circ") { v = $("r-circ").value; if (!String(v).trim()) { host.innerHTML = ""; return; } r = S.ringFromCircumference(v, $("r-circ-unit").value); }
+    else if (mode === "dia") { v = $("r-dia").value; if (!String(v).trim()) { host.innerHTML = ""; return; } r = S.ringFromDiameter(v, $("r-dia-unit").value); }
+    else { v = $("r-size").value; if (!String(v).trim()) { host.innerHTML = ""; return; } r = S.convertRing(v, $("r-sys").value); }
+    if (!r.ok) {
+      bad(host, r.reason === "too-small" ? "That's below the smallest size on the chart." :
+        r.reason === "too-big" ? "That's past the largest size on the chart." :
+        r.reason === "off-chart" ? "That size isn't on the chart. Try a US number, a UK letter, or an EU/mm number." :
+        "Type a measurement or a size.");
+      if (T) T.react("off"); return;
+    }
+    var grid = cell("US", r.us) + cell("UK", r.uk) + cell("EU / ISO", r.eu);
+    var html = '<div class="result"><h3>Ring size · ' + r.circMm + ' mm around, ' + r.diameterMm + ' mm across</h3><div class="grid">' + grid + "</div>";
+    html += '<p class="msg' + (r.off ? " between" : "") + '">' + (r.off ? "Between standard sizes, so this is the size up, the safer fit. " : "") +
+      "EU/ISO is the exact inside circumference; US and UK are the nearest chart sizes. A finger changes through the day, so measure it warm and more than once." + "</p>";
+    host.innerHTML = html + "</div>";
+    if (T) T.react(r.off ? "between" : "ok");
+  }
+
   function run() {
     if (current === "shoes") runShoes();
     else if (current === "women") runWomen();
     else if (current === "men") runMen();
     else if (current === "kids") runKids();
+    else if (current === "rings") runRings();
   }
 
   // react to any input or choice
@@ -194,6 +218,12 @@
       return km === "size"
         ? { tab: "kids", mode: "size", value: $("k-size").value, sys: $("k-sys").value }
         : { tab: "kids", mode: "height", value: $("k-height").value };
+    }
+    if (current === "rings") {
+      var rm = (document.querySelector('input[name="r-mode"]:checked') || {}).value;
+      if (rm === "dia") return { tab: "rings", mode: "dia", value: $("r-dia").value, unit: $("r-dia-unit").value };
+      if (rm === "size") return { tab: "rings", mode: "size", value: $("r-size").value, sys: $("r-sys").value };
+      return { tab: "rings", mode: "circ", value: $("r-circ").value, unit: $("r-circ-unit").value };
     }
     var what = (document.querySelector('input[name="m-what"]:checked') || {}).value;
     if (what === "trouser") return { tab: "men", what: "trouser", value: $("m-waist").value, unit: $("m-waist-unit").value };
@@ -223,6 +253,12 @@
       if (s.what === "trouser") { setVal("m-waist", s.value); setVal("m-waist-unit", s.unit); }
       else { setRadio("m-mode", s.mode || "size"); if (s.mode === "measure") setVal("m-chest", s.value); else { setVal("m-size", s.value); setVal("m-sys", s.sys); } }
       show("men");
+    } else if (s.tab === "rings") {
+      setRadio("r-mode", s.mode === "size" ? "size" : s.mode === "dia" ? "dia" : "circ");
+      if (s.mode === "size") { setVal("r-size", s.value); if (s.sys) setVal("r-sys", s.sys); }
+      else if (s.mode === "dia") { setVal("r-dia", s.value); if (s.unit) setVal("r-dia-unit", s.unit); }
+      else { setVal("r-circ", s.value); if (s.unit) setVal("r-circ-unit", s.unit); }
+      show("rings");
     } else if (s.tab === "kids") {
       setRadio("k-mode", s.mode || "height");
       if (s.mode === "size") { setVal("k-size", s.value); setVal("k-sys", s.sys); }
