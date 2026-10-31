@@ -159,3 +159,46 @@ test("an unknown kid's size is off-chart", () => {
   assert.strictEqual(S.convertKids(999, "eu").ok, false);
   assert.strictEqual(S.convertKids("99Z", "us").ok, false);
 });
+
+test("ring: EU size is the inner circumference (ISO 8653)", function () {
+  var r = S.ringFromCircumference(54.4, "mm");
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.eu, 54);
+  assert.strictEqual(r.us, 7);     // 54.4 mm is the US 7 row
+  assert.strictEqual(r.uk, "N");
+  assert.ok(r.approxUsUk);
+});
+
+test("ring: US 6 lines up with ~51.9 mm", function () {
+  var r = S.convertRing(6, "us");
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.circMm, 51.9);
+  assert.strictEqual(r.eu, 52);
+  assert.strictEqual(r.uk, "L");
+});
+
+test("ring: a UK letter converts both ways", function () {
+  var r = S.convertRing("n", "uk");
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.us, 7);
+  assert.strictEqual(r.eu, 54);
+});
+
+test("ring: diameter input matches the circumference it implies", function () {
+  var byCirc = S.ringFromCircumference(54.4, "mm");
+  var byDia = S.ringFromDiameter(54.4 / Math.PI, "mm");
+  assert.strictEqual(byDia.us, byCirc.us);
+  assert.strictEqual(byDia.eu, byCirc.eu);
+});
+
+test("ring: a between-sizes circumference is flagged as rounded", function () {
+  var r = S.ringFromCircumference(55.0, "mm"); // between 54.4 (US7) and 55.7 (US7.5)
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.off, true);
+});
+
+test("ring: off-chart sizes are refused, not snapped", function () {
+  assert.strictEqual(S.ringFromCircumference(30, "mm").reason, "too-small");
+  assert.strictEqual(S.ringFromCircumference(90, "mm").reason, "too-big");
+  assert.strictEqual(S.convertRing("ZZ", "uk").reason, "off-chart");
+});
