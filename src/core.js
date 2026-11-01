@@ -426,6 +426,61 @@
     return { ok: false, reason: "bad" };
   }
 
+  // ---------------------------------------------------------------- bra
+
+  // Bra sizing from two body measurements: the underbust (snug around the
+  // ribcage, just under the bust) sets the band, and the bust (around the
+  // fullest part) minus the band gives the cup. Measurements are the anchor;
+  // band and cup labels hang off them and differ between brands and countries.
+  //
+  //   Band: underbust in inches, rounded to the nearest even number, is the
+  //         UK/US band (28, 30, 32...). EU bands go in 5 cm steps, so EU =
+  //         band x 2.5 - 10 (32 -> 70, 34 -> 75), and FR = EU + 15.
+  //   Cup:  each inch the bust is bigger than the band is one cup. UK and US
+  //         cup letters agree up to D, then diverge (US doubles up DD/DDD,
+  //         UK runs DD/E/F...), which is why a US and a UK cup of the same
+  //         name aren't the same size above D.
+  // This follows the common retailer sizing charts; fitting guides vary on the
+  // band method, so the tool shows the measurements and says brands differ.
+  var BRA_US = ["AA", "A", "B", "C", "D", "DD", "DDD", "G", "H", "I", "J", "K"];
+  var BRA_UK = ["AA", "A", "B", "C", "D", "DD", "E", "F", "FF", "G", "GG", "H"];
+
+  function braFromMeasure(underbust, bust, unit) {
+    var ub = numify(underbust), bu = numify(bust);
+    if (!isFinite(ub) || !isFinite(bu)) return { ok: false, reason: "bad" };
+    // Work in cm internally; IN is mm per inch, so cm per inch is IN/10 = 2.54.
+    var cmPerIn = IN / 10;
+    var ubCm = unit === "in" ? ub * cmPerIn : ub;
+    var buCm = unit === "in" ? bu * cmPerIn : bu;
+    if (!(ubCm > 0) || !(buCm > 0)) return { ok: false, reason: "bad" };
+    if (buCm + 0.5 < ubCm) return { ok: false, reason: "bust-smaller" };
+
+    var ubIn = ubCm / cmPerIn, buIn = buCm / cmPerIn;
+    var band = Math.round(ubIn / 2) * 2;      // nearest even inch
+    if (band < 28) band = 28;
+    if (band > 48) band = 48;
+    var diff = Math.round(buIn - band);
+    if (diff < 0) diff = 0;
+    var idx = Math.min(diff, BRA_US.length - 1);
+    var cupUS = BRA_US[idx], cupUK = BRA_UK[idx];
+    var bandEU = band * 2.5 - 10;             // 32 -> 70
+    var bandFR = bandEU + 15;                 // 70 -> 85
+    var capped = diff > BRA_US.length - 1;
+
+    return {
+      ok: true,
+      underbustCm: Math.round(ubCm * 10) / 10,
+      bustCm: Math.round(buCm * 10) / 10,
+      band: band, bandEU: bandEU, bandFR: bandFR,
+      diffInches: diff,
+      cupUS: cupUS, cupUK: cupUK,
+      usLabel: band + cupUS,
+      ukLabel: band + cupUK,
+      euLabel: bandEU + cupUK,
+      capped: capped
+    };
+  }
+
   function pack(state) {
     var json = JSON.stringify(state);
     var b64 = typeof btoa === "function" ? btoa(unescape(encodeURIComponent(json))) : Buffer.from(json, "utf8").toString("base64");
@@ -450,6 +505,7 @@
     mensTopFromChest: mensTopFromChest, convertMensTop: convertMensTop, trouserWaist: trouserWaist,
     kidsFromHeight: kidsFromHeight, convertKids: convertKids,
     RINGS: RINGS, ringFromCircumference: ringFromCircumference, ringFromDiameter: ringFromDiameter, convertRing: convertRing,
+    BRA_US: BRA_US, BRA_UK: BRA_UK, braFromMeasure: braFromMeasure,
     pack: pack, unpack: unpack
   };
 });
