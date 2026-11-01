@@ -2,7 +2,7 @@
 
 Your clothes and shoe size in another country's sizes. Pick a system you know
 (US, UK or EU) and read off the rest, or measure once and let Sizely find the
-size for you. Covers shoes, women's clothes, men's clothes and kids' clothes.
+size for you. Covers shoes, women's, men's and kids' clothes, rings and bras.
 It runs in the browser; nothing you type is uploaded.
 
 Live: https://sizely.johanthegoat.xyz
@@ -28,6 +28,11 @@ Sizely does two things about that:
   EU/ISO number is the exact inside circumference in millimetres (ISO 8653); the
   US and UK sizes come from the standard chart, so they're the nearest match, not
   a formula, and a between-sizes measurement rounds up to the safer fit.
+- **Bra.** From two measurements, the underbust and the bust: the underbust
+  rounded to the nearest even inch gives the band (28, 30, 32... in UK/US, with
+  the EU band in 5 cm steps), and each inch the bust is bigger than the band is
+  one cup. US and UK cup letters agree up to D and then run differently, so the
+  result shows both. Brands vary widely, so it's a starting point, not a verdict.
 
 ## How it's built
 
