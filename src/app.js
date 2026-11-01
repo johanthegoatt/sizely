@@ -7,7 +7,7 @@
   var on = function (el, ev, fn) { if (el) el.addEventListener(ev, fn); };
 
   // ---- tabs ----
-  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"]];
+  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"], ["tab-bra", "panel-bra", "bra"]];
   var current = "shoes";
 
   function show(which) {
@@ -186,12 +186,36 @@
     if (T) T.react(r.off ? "between" : "ok");
   }
 
+  // ---- bra ----
+  function runBra() {
+    var host = $("bra-out");
+    var under = $("bra-under").value, bust = $("bra-bust").value;
+    if (!String(under).trim() || !String(bust).trim()) { host.innerHTML = ""; return; }
+    var r = S.braFromMeasure(under, bust, $("bra-unit").value);
+    if (!r.ok) {
+      bad(host, r.reason === "bust-smaller"
+        ? "The bust should be bigger than the underbust. Check the two measurements."
+        : "Type both measurements as numbers.");
+      if (T) T.react("off"); return;
+    }
+    var grid = cell("US", r.usLabel) + cell("UK", r.ukLabel) + cell("EU", r.euLabel);
+    var html = '<div class="result"><h3>Bra size · band from ' + r.underbustCm + ' cm, cup from a ' + r.diffInches + '" difference</h3>' +
+      '<div class="grid">' + grid + "</div>" +
+      '<p class="msg">The band is the underbust rounded to the nearest even inch; each inch the bust is bigger is one cup. ' +
+      (r.cupUS !== r.cupUK ? "US and UK cups differ at this size (US " + r.cupUS + ", UK " + r.cupUK + "). " : "") +
+      (r.capped ? "This is past the chart's top cup, so treat it as “or larger”. " : "") +
+      "Brands vary a lot, so use this as a starting point and try it on." + "</p></div>";
+    host.innerHTML = html;
+    if (T) T.react("ok");
+  }
+
   function run() {
     if (current === "shoes") runShoes();
     else if (current === "women") runWomen();
     else if (current === "men") runMen();
     else if (current === "kids") runKids();
     else if (current === "rings") runRings();
+    else if (current === "bra") runBra();
   }
 
   // react to any input or choice
@@ -224,6 +248,9 @@
       if (rm === "dia") return { tab: "rings", mode: "dia", value: $("r-dia").value, unit: $("r-dia-unit").value };
       if (rm === "size") return { tab: "rings", mode: "size", value: $("r-size").value, sys: $("r-sys").value };
       return { tab: "rings", mode: "circ", value: $("r-circ").value, unit: $("r-circ-unit").value };
+    }
+    if (current === "bra") {
+      return { tab: "bra", under: $("bra-under").value, bust: $("bra-bust").value, unit: $("bra-unit").value };
     }
     var what = (document.querySelector('input[name="m-what"]:checked') || {}).value;
     if (what === "trouser") return { tab: "men", what: "trouser", value: $("m-waist").value, unit: $("m-waist-unit").value };
@@ -264,6 +291,9 @@
       if (s.mode === "size") { setVal("k-size", s.value); setVal("k-sys", s.sys); }
       else setVal("k-height", s.value);
       show("kids");
+    } else if (s.tab === "bra") {
+      setVal("bra-under", s.under); setVal("bra-bust", s.bust); if (s.unit) setVal("bra-unit", s.unit);
+      show("bra");
     }
   }
 
