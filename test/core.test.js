@@ -202,3 +202,37 @@ test("ring: off-chart sizes are refused, not snapped", function () {
   assert.strictEqual(S.ringFromCircumference(90, "mm").reason, "too-big");
   assert.strictEqual(S.convertRing("ZZ", "uk").reason, "off-chart");
 });
+
+// ---- bra sizing ----
+
+test("bra band from underbust, cup from the bust difference (inches)", function () {
+  var r = S.braFromMeasure(30, 34, "in");
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.band, 30);
+  assert.strictEqual(r.diffInches, 4);
+  assert.strictEqual(r.cupUS, "D");
+  assert.strictEqual(r.cupUK, "D");
+  assert.strictEqual(r.usLabel, "30D");
+  assert.strictEqual(r.bandEU, 65);
+});
+
+test("US and UK cups diverge above D", function () {
+  var r = S.braFromMeasure(32, 39, "in"); // 7-inch difference
+  assert.strictEqual(r.band, 32);
+  assert.strictEqual(r.diffInches, 7);
+  assert.strictEqual(r.cupUS, "G");
+  assert.strictEqual(r.cupUK, "F");
+  assert.strictEqual(r.euLabel, "70F");
+});
+
+test("bra sizing works from centimetres", function () {
+  var r = S.braFromMeasure(75, 90, "cm");
+  assert.strictEqual(r.band, 30); // 29.5 in -> nearest even 30
+  assert.strictEqual(r.diffInches, 5);
+  assert.strictEqual(r.cupUS, "DD");
+});
+
+test("a bust smaller than the underbust is refused", function () {
+  assert.strictEqual(S.braFromMeasure(80, 78, "cm").reason, "bust-smaller");
+  assert.strictEqual(S.braFromMeasure("x", 90, "cm").reason, "bad");
+});
