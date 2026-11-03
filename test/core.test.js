@@ -236,3 +236,33 @@ test("a bust smaller than the underbust is refused", function () {
   assert.strictEqual(S.braFromMeasure(80, 78, "cm").reason, "bust-smaller");
   assert.strictEqual(S.braFromMeasure("x", 90, "cm").reason, "bad");
 });
+
+test("hat size from head circumference anchors on the metric number", function () {
+  var r = S.hatFromCircumference(57, "cm");
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.eu, 57);
+  assert.strictEqual(r.usLabel, "7⅛"); // 7 1/8
+  assert.strictEqual(r.ukLabel, "7");       // an eighth under the US
+});
+
+test("a between-size head rounds up to the roomier hat", function () {
+  var r = S.hatFromCircumference(565, "mm"); // between 56 and 57 cm
+  assert.strictEqual(r.eu, 57);
+  assert.strictEqual(r.off, true);
+});
+
+test("US 7 is a 56 cm head; UK runs an eighth smaller", function () {
+  var r = S.convertHat(7, "us");
+  assert.strictEqual(r.eu, 56);
+  assert.strictEqual(r.usLabel, "7");
+  assert.strictEqual(r.ukLabel, "6⅞"); // 6 7/8
+  var uk = S.convertHat(6.875, "uk");
+  assert.strictEqual(uk.eu, 56);
+});
+
+test("hat labels show eighths, and off-chart is refused", function () {
+  assert.strictEqual(S.hatLabel(7.25), "7¼");
+  assert.strictEqual(S.hatLabel(8), "8");
+  assert.strictEqual(S.hatFromCircumference(40, "cm").reason, "too-small");
+  assert.strictEqual(S.convertHat(12, "us").reason, "off-chart");
+});

@@ -426,6 +426,85 @@
     return { ok: false, reason: "bad" };
   }
 
+  // ---------------------------------------------------------------- hats
+
+  // Hat sizes come straight from the head's circumference. The anchor is the
+  // metric size, which IS that circumference in centimetres (a 57 cm head is a
+  // 57). The US size is the hat's inside diameter in inches, so it's the
+  // circumference in inches divided by pi, given in eighths (56 cm ≈ 22.05 in,
+  // /pi ≈ 7.0, a US 7); the UK size runs one eighth smaller than the US one.
+  // The S/M/L letter is a rough band that varies by maker, so it's a guide, not
+  // a number to trust. Measure round the head about a finger above the ears and
+  // across the middle of the forehead.
+  var HATS = [
+    { circ: 520, us: 6.5, band: "XS" }, { circ: 530, us: 6.625, band: "XS" },
+    { circ: 540, us: 6.75, band: "XS" }, { circ: 550, us: 6.875, band: "S" },
+    { circ: 560, us: 7, band: "S" }, { circ: 570, us: 7.125, band: "M" },
+    { circ: 580, us: 7.25, band: "M" }, { circ: 590, us: 7.375, band: "L" },
+    { circ: 600, us: 7.5, band: "L" }, { circ: 610, us: 7.625, band: "XL" },
+    { circ: 620, us: 7.75, band: "XL" }, { circ: 630, us: 7.875, band: "XXL" },
+    { circ: 640, us: 8, band: "XXL" }
+  ];
+
+  var EIGHTHS = { 0: "", 0.125: "⅛", 0.25: "¼", 0.375: "⅜", 0.5: "½", 0.625: "⅝", 0.75: "¾", 0.875: "⅞" };
+
+  // A US/UK hat size like 7.25 as "7¼"; a bare whole number has no fraction.
+  function hatLabel(size) {
+    var whole = Math.floor(size + 1e-9), frac = Math.round((size - whole) * 1000) / 1000;
+    if (frac >= 0.999) { whole += 1; frac = 0; }
+    return String(whole) + (EIGHTHS[frac] || "");
+  }
+
+  function hatRow(row, off) {
+    return {
+      ok: true,
+      circMm: row.circ,
+      eu: Math.round(row.circ / 10),        // metric size == circumference in cm
+      us: row.us, usLabel: hatLabel(row.us),
+      uk: row.us - 0.125, ukLabel: hatLabel(row.us - 0.125),
+      band: row.band,
+      off: !!off
+    };
+  }
+
+  // From the head's circumference. A measurement between two sizes rounds up to
+  // the roomier hat, since a hat a touch loose sits better than one too tight.
+  function hatFromCircumference(value, unit) {
+    var n = numify(value);
+    if (!isFinite(n)) return { ok: false, reason: "bad" };
+    var mm = unit === "in" ? n * IN : unit === "cm" ? n * 10 : n;
+    if (mm < HATS[0].circ - 5) return { ok: false, reason: "too-small" };
+    if (mm > HATS[HATS.length - 1].circ + 5) return { ok: false, reason: "too-big" };
+    var pick = HATS[HATS.length - 1], exact = false;
+    for (var i = 0; i < HATS.length; i++) {
+      if (mm <= HATS[i].circ + 1e-9) {
+        pick = HATS[i];
+        exact = Math.abs(HATS[i].circ - mm) <= 1.5;
+        break;
+      }
+    }
+    var out = hatRow(pick, !exact);
+    out.inputCircMm = Math.round(mm);
+    return out;
+  }
+
+  // Convert a known hat size in one system to the rest. EU is the circumference
+  // in cm, so it runs through the circumference lookup.
+  function convertHat(value, fromSys) {
+    var f = String(fromSys == null ? "" : fromSys).toLowerCase();
+    if (f === "eu") return hatFromCircumference(value, "cm");
+    var n = numify(value);
+    if (!isFinite(n)) return { ok: false, reason: "bad" };
+    var key = f === "uk" ? n + 0.125 : n; // UK is an eighth under US; match on US
+    var best = -1, bd = Infinity;
+    for (var i = 0; i < HATS.length; i++) {
+      var d = Math.abs(HATS[i].us - key);
+      if (d < bd - 1e-9) { bd = d; best = i; }
+    }
+    if (best < 0 || bd > 0.1) return { ok: false, reason: "off-chart" };
+    return hatRow(HATS[best], false);
+  }
+
   // ---------------------------------------------------------------- bra
 
   // Bra sizing from two body measurements: the underbust (snug around the
@@ -505,6 +584,7 @@
     mensTopFromChest: mensTopFromChest, convertMensTop: convertMensTop, trouserWaist: trouserWaist,
     kidsFromHeight: kidsFromHeight, convertKids: convertKids,
     RINGS: RINGS, ringFromCircumference: ringFromCircumference, ringFromDiameter: ringFromDiameter, convertRing: convertRing,
+    HATS: HATS, hatLabel: hatLabel, hatFromCircumference: hatFromCircumference, convertHat: convertHat,
     BRA_US: BRA_US, BRA_UK: BRA_UK, braFromMeasure: braFromMeasure,
     pack: pack, unpack: unpack
   };
