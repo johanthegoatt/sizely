@@ -2,7 +2,7 @@
 
 Your clothes and shoe size in another country's sizes. Pick a system you know
 (US, UK or EU) and read off the rest, or measure once and let Sizely find the
-size for you. Covers shoes, women's, men's and kids' clothes, rings and bras.
+size for you. Covers shoes, women's, men's and kids' clothes, rings, bras and hats.
 It runs in the browser; nothing you type is uploaded.
 
 Live: https://sizely.johanthegoat.xyz
@@ -33,6 +33,11 @@ Sizely does two things about that:
   the EU band in 5 cm steps), and each inch the bust is bigger than the band is
   one cup. US and UK cup letters agree up to D and then run differently, so the
   result shows both. Brands vary widely, so it's a starting point, not a verdict.
+- **Hats.** From the head's circumference. The EU/metric size is that
+  circumference in centimetres; the US size is the hat's diameter in inches
+  (circumference in inches ÷ π, in eighths); the UK runs an eighth smaller. The
+  S/M/L band is a rough guide that varies by maker, so the measurement is what
+  to trust. A between-size head rounds up to the roomier hat.
 
 ## How it's built
 
