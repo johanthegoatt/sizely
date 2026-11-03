@@ -7,7 +7,7 @@
   var on = function (el, ev, fn) { if (el) el.addEventListener(ev, fn); };
 
   // ---- tabs ----
-  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"], ["tab-bra", "panel-bra", "bra"]];
+  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"], ["tab-bra", "panel-bra", "bra"], ["tab-hats", "panel-hats", "hats"]];
   var current = "shoes";
 
   function show(which) {
@@ -209,6 +209,40 @@
     if (T) T.react("ok");
   }
 
+  // ---- hats ----
+  // Turn "7 1/4" or "7¼" into 7.25 so a typed fractional size reads cleanly.
+  function hatNum(text) {
+    var s = String(text == null ? "" : text).trim()
+      .replace(/⅛/g, " 1/8").replace(/¼/g, " 1/4").replace(/⅜/g, " 3/8")
+      .replace(/½/g, " 1/2").replace(/⅝/g, " 5/8").replace(/¾/g, " 3/4").replace(/⅞/g, " 7/8");
+    var m = s.match(/^(\d+)\s+(\d+)\s*\/\s*(\d+)$/);
+    if (m) return +m[1] + (+m[3] ? +m[2] / +m[3] : 0);
+    var f = s.match(/^(\d+)\s*\/\s*(\d+)$/);
+    if (f) return +f[2] ? +f[1] / +f[2] : NaN;
+    return s;
+  }
+
+  function runHats() {
+    var host = $("h-out");
+    var mode = toggleByRadio("h-mode", "data-h", $("panel-hats"));
+    var r, v;
+    if (mode === "head") { v = $("h-circ").value; if (!String(v).trim()) { host.innerHTML = ""; return; } r = S.hatFromCircumference(v, $("h-circ-unit").value); }
+    else { v = $("h-size").value; if (!String(v).trim()) { host.innerHTML = ""; return; } r = S.convertHat(hatNum(v), $("h-sys").value); }
+    if (!r.ok) {
+      bad(host, r.reason === "too-small" ? "That's below the smallest size on the chart." :
+        r.reason === "too-big" ? "That's past the largest size on the chart." :
+        r.reason === "off-chart" ? "That size isn't on the chart. Try a US/UK number (like 7¼) or an EU/cm number." :
+        "Type a measurement or a size.");
+      if (T) T.react("off"); return;
+    }
+    var grid = cell("US", r.usLabel) + cell("UK", r.ukLabel) + cell("EU", r.eu) + cell("S–XL", r.band);
+    var html = '<div class="result"><h3>Hat size · ' + (r.inputCircMm ? r.inputCircMm + ' mm around' : r.circMm + ' mm around') + '</h3><div class="grid">' + grid + "</div>";
+    html += '<p class="msg' + (r.off ? " between" : "") + '">' + (r.off ? "Between sizes, so this is the size up, the roomier fit. " : "") +
+      "EU is the head's circumference in centimetres; the US size is the hat's diameter in inches and the UK runs an eighth smaller. The letter band varies by maker, so go by the measurement." + "</p>";
+    host.innerHTML = html + "</div>";
+    if (T) T.react(r.off ? "between" : "ok");
+  }
+
   function run() {
     if (current === "shoes") runShoes();
     else if (current === "women") runWomen();
@@ -216,6 +250,7 @@
     else if (current === "kids") runKids();
     else if (current === "rings") runRings();
     else if (current === "bra") runBra();
+    else if (current === "hats") runHats();
   }
 
   // react to any input or choice
@@ -251,6 +286,12 @@
     }
     if (current === "bra") {
       return { tab: "bra", under: $("bra-under").value, bust: $("bra-bust").value, unit: $("bra-unit").value };
+    }
+    if (current === "hats") {
+      var hm = (document.querySelector('input[name="h-mode"]:checked') || {}).value;
+      return hm === "size"
+        ? { tab: "hats", mode: "size", value: $("h-size").value, sys: $("h-sys").value }
+        : { tab: "hats", mode: "head", value: $("h-circ").value, unit: $("h-circ-unit").value };
     }
     var what = (document.querySelector('input[name="m-what"]:checked') || {}).value;
     if (what === "trouser") return { tab: "men", what: "trouser", value: $("m-waist").value, unit: $("m-waist-unit").value };
@@ -294,6 +335,11 @@
     } else if (s.tab === "bra") {
       setVal("bra-under", s.under); setVal("bra-bust", s.bust); if (s.unit) setVal("bra-unit", s.unit);
       show("bra");
+    } else if (s.tab === "hats") {
+      setRadio("h-mode", s.mode === "size" ? "size" : "head");
+      if (s.mode === "size") { setVal("h-size", s.value); if (s.sys) setVal("h-sys", s.sys); }
+      else { setVal("h-circ", s.value); if (s.unit) setVal("h-circ-unit", s.unit); }
+      show("hats");
     }
   }
 

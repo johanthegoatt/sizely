@@ -24,6 +24,7 @@
       <button class="tab" role="tab" id="tab-kids" aria-controls="panel-kids" aria-selected="false">Kids' clothes</button>
       <button class="tab" role="tab" id="tab-rings" aria-controls="panel-rings" aria-selected="false">Rings</button>
       <button class="tab" role="tab" id="tab-bra" aria-controls="panel-bra" aria-selected="false">Bra</button>
+      <button class="tab" role="tab" id="tab-hats" aria-controls="panel-hats" aria-selected="false">Hats</button>
     </div>
 
     <!-- SHOES -->
@@ -279,6 +280,47 @@
         <p class="hint">Measure the underbust snugly around the ribcage just below the bust, and the bust around the fullest part, keeping the tape level. The band comes from the underbust, the cup from how much bigger the bust is. US and UK cups match up to D, then run differently, so a US DD and a UK DD aren't the same. Brands vary a lot; a proper fitting beats any chart.</p>
       </div>
       <div class="out" id="bra-out" aria-live="polite"></div>
+    </section>
+
+    <section class="panel hidden" id="panel-hats" role="tabpanel" aria-labelledby="tab-hats">
+      <div class="card">
+        <div class="mode" role="radiogroup" aria-label="How to find the hat size">
+          <label><input type="radio" name="h-mode" value="head" checked> Measure around the head</label>
+          <label><input type="radio" name="h-mode" value="size"> I know a size</label>
+        </div>
+
+        <div class="field-row" data-h="head">
+          <label class="field">
+            <span>Head circumference</span>
+            <input id="h-circ" inputmode="decimal" autocomplete="off" placeholder="e.g. 57">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="h-circ-unit">
+              <option value="cm">cm</option>
+              <option value="mm">mm</option>
+              <option value="in">inches</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-row hidden" data-h="size">
+          <label class="field">
+            <span>Size</span>
+            <input id="h-size" autocomplete="off" placeholder="e.g. 7, 7 1/4 or 57">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="h-sys">
+              <option value="us">US</option>
+              <option value="uk">UK</option>
+              <option value="eu">EU (cm)</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint">Wrap a tape around your head about a finger above the ears and across the middle of the forehead. The EU/metric size is that circumference in centimetres; the US size is the hat's diameter in inches, the UK an eighth smaller. The S/M/L letter is a rough guide that varies by maker, so go by the measurement.</p>
+      </div>
+      <div class="out" id="h-out" aria-live="polite"></div>
     </section>
 
     <div class="actions">
