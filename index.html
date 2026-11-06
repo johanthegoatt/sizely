@@ -25,6 +25,7 @@
       <button class="tab" role="tab" id="tab-rings" aria-controls="panel-rings" aria-selected="false">Rings</button>
       <button class="tab" role="tab" id="tab-bra" aria-controls="panel-bra" aria-selected="false">Bra</button>
       <button class="tab" role="tab" id="tab-hats" aria-controls="panel-hats" aria-selected="false">Hats</button>
+      <button class="tab" role="tab" id="tab-gloves" aria-controls="panel-gloves" aria-selected="false">Gloves</button>
     </div>
 
     <!-- SHOES -->
@@ -321,6 +322,28 @@
         <p class="hint">Wrap a tape around your head about a finger above the ears and across the middle of the forehead. The EU/metric size is that circumference in centimetres; the US size is the hat's diameter in inches, the UK an eighth smaller. The S/M/L letter is a rough guide that varies by maker, so go by the measurement.</p>
       </div>
       <div class="out" id="h-out" aria-live="polite"></div>
+    </section>
+
+    <!-- GLOVES -->
+    <section class="panel hidden" id="panel-gloves" role="tabpanel" aria-labelledby="tab-gloves">
+      <div class="card">
+        <div class="field-row">
+          <label class="field">
+            <span>Hand circumference</span>
+            <input id="g-circ" inputmode="decimal" autocomplete="off" placeholder="e.g. 21.5">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="g-circ-unit">
+              <option value="cm">cm</option>
+              <option value="mm">mm</option>
+              <option value="in">inches</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint">Measure around the widest part of your palm, over the knuckles, with the thumb left out. Use the hand you write with; it's usually a little bigger. The glove size is that measurement in inches, so an 8-inch hand is a size 8. The S–XL band leans smaller for women and larger for men.</p>
+      </div>
+      <div class="out" id="g-out" aria-live="polite"></div>
     </section>
 
     <div class="actions">

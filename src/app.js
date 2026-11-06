@@ -7,7 +7,7 @@
   var on = function (el, ev, fn) { if (el) el.addEventListener(ev, fn); };
 
   // ---- tabs ----
-  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"], ["tab-bra", "panel-bra", "bra"], ["tab-hats", "panel-hats", "hats"]];
+  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"], ["tab-bra", "panel-bra", "bra"], ["tab-hats", "panel-hats", "hats"], ["tab-gloves", "panel-gloves", "gloves"]];
   var current = "shoes";
 
   function show(which) {
@@ -243,6 +243,24 @@
     if (T) T.react(r.off ? "between" : "ok");
   }
 
+  function runGloves() {
+    var host = $("g-out");
+    var v = $("g-circ").value;
+    if (!String(v).trim()) { host.innerHTML = ""; return; }
+    var r = S.gloveFromCircumference(v, $("g-circ-unit").value);
+    if (!r.ok) {
+      bad(host, r.reason === "too-small" ? "That's smaller than the smallest glove on the chart. Check the unit." :
+        r.reason === "too-big" ? "That's bigger than the largest glove on the chart. Check the unit." :
+        "Type a measurement around your hand.");
+      if (T) T.react("off"); return;
+    }
+    var grid = cell("Size", r.sizeLabel) + cell("S–XL", r.band) + cell("Around", r.inputIn + '"');
+    host.innerHTML = '<div class="result"><h3>Glove size · ' + r.inputMm + ' mm around</h3><div class="grid">' + grid + "</div>" +
+      '<p class="msg">The glove size is the hand\'s circumference in inches, so ' + r.inputIn + ' inches is a size ' + r.sizeLabel +
+      '. This falls in the ' + r.lean + '. Letters vary by maker, so go by the number.</p></div>';
+    if (T) T.react("ok");
+  }
+
   function run() {
     if (current === "shoes") runShoes();
     else if (current === "women") runWomen();
@@ -251,6 +269,7 @@
     else if (current === "rings") runRings();
     else if (current === "bra") runBra();
     else if (current === "hats") runHats();
+    else if (current === "gloves") runGloves();
   }
 
   // react to any input or choice
@@ -292,6 +311,9 @@
       return hm === "size"
         ? { tab: "hats", mode: "size", value: $("h-size").value, sys: $("h-sys").value }
         : { tab: "hats", mode: "head", value: $("h-circ").value, unit: $("h-circ-unit").value };
+    }
+    if (current === "gloves") {
+      return { tab: "gloves", value: $("g-circ").value, unit: $("g-circ-unit").value };
     }
     var what = (document.querySelector('input[name="m-what"]:checked') || {}).value;
     if (what === "trouser") return { tab: "men", what: "trouser", value: $("m-waist").value, unit: $("m-waist-unit").value };
@@ -340,6 +362,9 @@
       if (s.mode === "size") { setVal("h-size", s.value); if (s.sys) setVal("h-sys", s.sys); }
       else { setVal("h-circ", s.value); if (s.unit) setVal("h-circ-unit", s.unit); }
       show("hats");
+    } else if (s.tab === "gloves") {
+      setVal("g-circ", s.value); if (s.unit) setVal("g-circ-unit", s.unit);
+      show("gloves");
     }
   }
 

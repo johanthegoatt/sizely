@@ -2,7 +2,7 @@
 
 Your clothes and shoe size in another country's sizes. Pick a system you know
 (US, UK or EU) and read off the rest, or measure once and let Sizely find the
-size for you. Covers shoes, women's, men's and kids' clothes, rings, bras and hats.
+size for you. Covers shoes, women's, men's and kids' clothes, rings, bras, hats and gloves.
 It runs in the browser; nothing you type is uploaded.
 
 Live: https://sizely.johanthegoat.xyz
