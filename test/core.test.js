@@ -266,3 +266,32 @@ test("hat labels show eighths, and off-chart is refused", function () {
   assert.strictEqual(S.hatFromCircumference(40, "cm").reason, "too-small");
   assert.strictEqual(S.convertHat(12, "us").reason, "off-chart");
 });
+
+test("gloves: the size is the hand circumference in inches", () => {
+  // 8 inches round -> size 8
+  const r = S.gloveFromCircumference(8, "in");
+  assert.ok(r.ok);
+  assert.strictEqual(r.size, 8);
+  assert.strictEqual(r.sizeLabel, "8");
+  assert.strictEqual(r.band, "M");
+});
+
+test("gloves: a centimetre measurement rounds to the nearest half size", () => {
+  // 21.6 cm = 8.5 in -> size 8.5
+  const r = S.gloveFromCircumference(21.6, "cm");
+  assert.ok(r.ok);
+  assert.strictEqual(r.size, 8.5);
+  assert.strictEqual(r.sizeLabel, "8½");
+  assert.strictEqual(r.band, "M");
+});
+
+test("gloves: small hands lean women's, large hands men's", () => {
+  assert.strictEqual(S.gloveFromCircumference(7, "in").lean, "women's range");
+  assert.strictEqual(S.gloveFromCircumference(10, "in").lean, "men's range");
+});
+
+test("gloves: off-chart measurements are reported", () => {
+  assert.strictEqual(S.gloveFromCircumference(3, "in").reason, "too-small");
+  assert.strictEqual(S.gloveFromCircumference(15, "in").reason, "too-big");
+  assert.strictEqual(S.gloveFromCircumference("abc", "in").reason, "bad");
+});
