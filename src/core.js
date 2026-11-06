@@ -560,6 +560,55 @@
     };
   }
 
+  // Gloves. The classic glove size is simply the circumference of your hand,
+  // measured in inches around the knuckles of the dominant hand with the thumb
+  // left out: a hand that measures 8 inches round is a size 8. So the number is
+  // the measurement, rounded to the nearest half size, and the S-XL band is a
+  // guide that leans smaller for women and larger for men. Measure the hand you
+  // write with, since it's usually a touch bigger. Below is circumference in
+  // millimetres to the size and band.
+  var GLOVES = [
+    { mm: 152, size: 6.0, band: "XS" },
+    { mm: 165, size: 6.5, band: "XS" },
+    { mm: 178, size: 7.0, band: "S" },
+    { mm: 190, size: 7.5, band: "S" },
+    { mm: 203, size: 8.0, band: "M" },
+    { mm: 216, size: 8.5, band: "M" },
+    { mm: 229, size: 9.0, band: "L" },
+    { mm: 241, size: 9.5, band: "L" },
+    { mm: 254, size: 10.0, band: "XL" },
+    { mm: 267, size: 10.5, band: "XL" },
+    { mm: 279, size: 11.0, band: "XXL" }
+  ];
+
+  function gloveLabel(size) {
+    return size % 1 === 0 ? String(size) : (Math.floor(size) + "½");
+  }
+
+  function gloveFromCircumference(value, unit) {
+    var n = numify(value);
+    if (!isFinite(n)) return { ok: false, reason: "bad" };
+    var mm = unit === "in" ? n * IN : unit === "cm" ? n * 10 : n;
+    if (mm < GLOVES[0].mm - 8) return { ok: false, reason: "too-small" };
+    if (mm > GLOVES[GLOVES.length - 1].mm + 8) return { ok: false, reason: "too-big" };
+    // Round to the nearest half-inch size, then read the band off that size.
+    var inches = mm / IN;
+    var size = Math.round(inches * 2) / 2;
+    if (size < 6) size = 6; if (size > 11) size = 11;
+    var pick = GLOVES[0];
+    for (var i = 0; i < GLOVES.length; i++) { if (Math.abs(GLOVES[i].size - size) < 1e-9) { pick = GLOVES[i]; break; } }
+    var lean = size <= 7.5 ? "women's range" : size >= 9 ? "men's range" : "unisex middle";
+    return {
+      ok: true,
+      inputMm: Math.round(mm),
+      inputIn: Math.round(inches * 10) / 10,
+      size: size,
+      sizeLabel: gloveLabel(size),
+      band: pick.band,
+      lean: lean
+    };
+  }
+
   function pack(state) {
     var json = JSON.stringify(state);
     var b64 = typeof btoa === "function" ? btoa(unescape(encodeURIComponent(json))) : Buffer.from(json, "utf8").toString("base64");
@@ -586,6 +635,7 @@
     RINGS: RINGS, ringFromCircumference: ringFromCircumference, ringFromDiameter: ringFromDiameter, convertRing: convertRing,
     HATS: HATS, hatLabel: hatLabel, hatFromCircumference: hatFromCircumference, convertHat: convertHat,
     BRA_US: BRA_US, BRA_UK: BRA_UK, braFromMeasure: braFromMeasure,
+    GLOVES: GLOVES, gloveLabel: gloveLabel, gloveFromCircumference: gloveFromCircumference,
     pack: pack, unpack: unpack
   };
 });
