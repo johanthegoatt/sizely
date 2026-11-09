@@ -609,6 +609,40 @@
     };
   }
 
+  // ---------------------------------------------------------------- belts
+
+  // A belt is sized by its length, not your waist, which is why the label on a
+  // belt and the label on your trousers rarely match. The steady rule across
+  // menswear guides is to take a belt about 2 inches larger than your trouser
+  // waist size, so the strap reaches the middle hole with a little tail spare
+  // (add 3-4 for low-rise jeans). European belts are sized as that length in
+  // centimetres, in 5 cm steps, so the inch size times 2.54 rounded to the
+  // nearest 5 cm gives the cm label. The surest way is still to measure a belt
+  // you already wear, from the fold at the buckle to the hole you use.
+  function beltFromWaist(value, unit) {
+    var n = numify(value);
+    if (!isFinite(n) || n <= 0) return { ok: false, reason: "bad" };
+    // IN is millimetres per inch, so cm-to-inch is n*10/IN and mm-to-inch is n/IN.
+    var waistIn = unit === "cm" ? (n * 10 / IN) : unit === "mm" ? (n / IN) : n;
+    if (waistIn < 20 || waistIn > 60) return { ok: false, reason: waistIn < 20 ? "too-small" : "too-big" };
+
+    function toCm(inches) { return inches * IN / 10; }           // inches to centimetres
+    function to5(cm) { return Math.round(cm / 5) * 5; }          // nearest 5 cm belt step
+
+    // Belts come in even-inch sizes; +2 on the waist, low-rise wants a touch more.
+    var sizeIn = Math.round((waistIn + 2) / 2) * 2;
+    var lowRiseIn = Math.round((waistIn + 4) / 2) * 2;
+    return {
+      ok: true,
+      waistIn: Math.round(waistIn * 10) / 10,
+      waistCm: Math.round(toCm(waistIn)),
+      sizeIn: sizeIn,
+      sizeCm: to5(toCm(sizeIn)),
+      lowRiseIn: lowRiseIn,
+      lowRiseCm: to5(toCm(lowRiseIn))
+    };
+  }
+
   function pack(state) {
     var json = JSON.stringify(state);
     var b64 = typeof btoa === "function" ? btoa(unescape(encodeURIComponent(json))) : Buffer.from(json, "utf8").toString("base64");
@@ -636,6 +670,7 @@
     HATS: HATS, hatLabel: hatLabel, hatFromCircumference: hatFromCircumference, convertHat: convertHat,
     BRA_US: BRA_US, BRA_UK: BRA_UK, braFromMeasure: braFromMeasure,
     GLOVES: GLOVES, gloveLabel: gloveLabel, gloveFromCircumference: gloveFromCircumference,
+    beltFromWaist: beltFromWaist,
     pack: pack, unpack: unpack
   };
 });
