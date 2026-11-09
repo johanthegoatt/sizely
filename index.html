@@ -26,6 +26,7 @@
       <button class="tab" role="tab" id="tab-bra" aria-controls="panel-bra" aria-selected="false">Bra</button>
       <button class="tab" role="tab" id="tab-hats" aria-controls="panel-hats" aria-selected="false">Hats</button>
       <button class="tab" role="tab" id="tab-gloves" aria-controls="panel-gloves" aria-selected="false">Gloves</button>
+      <button class="tab" role="tab" id="tab-belt" aria-controls="panel-belt" aria-selected="false">Belt</button>
     </div>
 
     <!-- SHOES -->
@@ -344,6 +345,26 @@
         <p class="hint">Measure around the widest part of your palm, over the knuckles, with the thumb left out. Use the hand you write with; it's usually a little bigger. The glove size is that measurement in inches, so an 8-inch hand is a size 8. The S–XL band leans smaller for women and larger for men.</p>
       </div>
       <div class="out" id="g-out" aria-live="polite"></div>
+    </section>
+
+    <section class="panel hidden" id="panel-belt" role="tabpanel" aria-labelledby="tab-belt">
+      <div class="card">
+        <div class="field-row">
+          <label class="field">
+            <span>Trouser waist size</span>
+            <input id="b-waist" inputmode="decimal" autocomplete="off" placeholder="e.g. 34">
+          </label>
+          <label class="field">
+            <span>in</span>
+            <select id="b-waist-unit">
+              <option value="in">inches</option>
+              <option value="cm">cm</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint">A belt is sized by its length, not your waist, so the two labels rarely match. Take a belt about 2 inches above your trouser waist size, so the strap reaches the middle hole with a little spare; European belts give that length in centimetres. For low-rise jeans go a touch longer. The surest check is to measure a belt you already wear, from the fold at the buckle to the hole you use most.</p>
+      </div>
+      <div class="out" id="b-out" aria-live="polite"></div>
     </section>
 
     <div class="actions">

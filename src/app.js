@@ -7,7 +7,7 @@
   var on = function (el, ev, fn) { if (el) el.addEventListener(ev, fn); };
 
   // ---- tabs ----
-  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"], ["tab-bra", "panel-bra", "bra"], ["tab-hats", "panel-hats", "hats"], ["tab-gloves", "panel-gloves", "gloves"]];
+  var tabs = [["tab-shoes", "panel-shoes", "shoes"], ["tab-women", "panel-women", "clothes"], ["tab-men", "panel-men", "clothes"], ["tab-kids", "panel-kids", "clothes"], ["tab-rings", "panel-rings", "rings"], ["tab-bra", "panel-bra", "bra"], ["tab-hats", "panel-hats", "hats"], ["tab-gloves", "panel-gloves", "gloves"], ["tab-belt", "panel-belt", "clothes"]];
   var current = "shoes";
 
   function show(which) {
@@ -261,6 +261,25 @@
     if (T) T.react("ok");
   }
 
+  function runBelt() {
+    var host = $("b-out");
+    var v = $("b-waist").value;
+    if (!String(v).trim()) { host.innerHTML = ""; return; }
+    var r = S.beltFromWaist(v, $("b-waist-unit").value);
+    if (!r.ok) {
+      bad(host, r.reason === "too-small" ? "That waist looks too small. Check the unit." :
+        r.reason === "too-big" ? "That waist looks too big. Check the unit." :
+        "Type your trouser waist.");
+      if (T) T.react("off"); return;
+    }
+    var grid = cell("Belt size", r.sizeIn + '"') + cell("EU / cm", r.sizeCm + " cm") + cell("From waist", r.waistIn + '"');
+    host.innerHTML = '<div class="result"><h3>Belt size · ' + r.sizeIn + '" (' + r.sizeCm + ' cm)</h3><div class="grid">' + grid + "</div>" +
+      '<p class="msg">A belt is sized by its length, so it runs about 2 inches above your ' + r.waistIn + '" trouser waist — a ' + r.sizeIn +
+      '" belt, or ' + r.sizeCm + ' cm in European sizing. For low-rise jeans go a touch longer, about ' + r.lowRiseIn + '" (' + r.lowRiseCm +
+      ' cm). The surest check is to measure a belt you already wear, from the buckle fold to the hole you use.</p></div>';
+    if (T) T.react("ok");
+  }
+
   function run() {
     if (current === "shoes") runShoes();
     else if (current === "women") runWomen();
@@ -270,6 +289,7 @@
     else if (current === "bra") runBra();
     else if (current === "hats") runHats();
     else if (current === "gloves") runGloves();
+    else if (current === "belt") runBelt();
   }
 
   // react to any input or choice
@@ -314,6 +334,9 @@
     }
     if (current === "gloves") {
       return { tab: "gloves", value: $("g-circ").value, unit: $("g-circ-unit").value };
+    }
+    if (current === "belt") {
+      return { tab: "belt", value: $("b-waist").value, unit: $("b-waist-unit").value };
     }
     var what = (document.querySelector('input[name="m-what"]:checked') || {}).value;
     if (what === "trouser") return { tab: "men", what: "trouser", value: $("m-waist").value, unit: $("m-waist-unit").value };
@@ -365,6 +388,9 @@
     } else if (s.tab === "gloves") {
       setVal("g-circ", s.value); if (s.unit) setVal("g-circ-unit", s.unit);
       show("gloves");
+    } else if (s.tab === "belt") {
+      setVal("b-waist", s.value); if (s.unit) setVal("b-waist-unit", s.unit);
+      show("belt");
     }
   }
 
