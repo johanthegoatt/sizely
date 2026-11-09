@@ -295,3 +295,31 @@ test("gloves: off-chart measurements are reported", () => {
   assert.strictEqual(S.gloveFromCircumference(15, "in").reason, "too-big");
   assert.strictEqual(S.gloveFromCircumference("abc", "in").reason, "bad");
 });
+
+// --- belts ---
+
+test("a 34 inch waist takes a 36 inch belt (waist + 2)", function () {
+  var r = S.beltFromWaist(34, "in");
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.sizeIn, 36);
+  assert.strictEqual(r.lowRiseIn, 38);
+});
+
+test("belt size rounds to an even inch and gives EU centimetres", function () {
+  var r = S.beltFromWaist(33, "in"); // 33+2 = 35 -> rounds to 36
+  assert.strictEqual(r.sizeIn, 36);
+  // 36 in x 25.4 = 914 mm = 91.4 cm -> nearest 5 = 90
+  assert.strictEqual(r.sizeCm, 90);
+});
+
+test("a waist in centimetres converts in", function () {
+  var r = S.beltFromWaist(86, "cm"); // ~33.9 in -> +2 ~35.9 -> 36
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.sizeIn, 36);
+});
+
+test("a silly waist is rejected so the unit gets checked", function () {
+  assert.strictEqual(S.beltFromWaist(5, "in").ok, false);
+  assert.strictEqual(S.beltFromWaist(200, "cm").ok, false);
+  assert.strictEqual(S.beltFromWaist("", "in").ok, false);
+});
