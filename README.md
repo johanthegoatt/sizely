@@ -33,6 +33,10 @@ Sizely does two things about that:
   the EU band in 5 cm steps), and each inch the bust is bigger than the band is
   one cup. US and UK cup letters agree up to D and then run differently, so the
   result shows both. Brands vary widely, so it's a starting point, not a verdict.
+  It also lists the **sister sizes**: a bra's cup volume comes from the band and
+  cup together, so a 34C holds about the same cup as a 32D or a 36B. When the
+  calculated size is out of stock or the band feels tight or loose, the sister
+  sizes a band either side are the ones to try next.
 - **Hats.** From the head's circumference. The EU/metric size is that
   circumference in centimetres; the US size is the hat's diameter in inches
   (circumference in inches ÷ π, in eighths); the UK runs an eighth smaller. The
