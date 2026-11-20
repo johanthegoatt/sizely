@@ -560,6 +560,43 @@
     };
   }
 
+  // Sister sizes. A bra's cup volume comes from the band and the cup together,
+  // not the cup letter on its own, so a 34C holds about the same cup as a 32D or
+  // a 36B. When your calculated band feels too tight or too loose, or the exact
+  // size is out of stock, the "sister sizes" are the ones to reach for: drop the
+  // band by one (two inches) and go up a cup to keep the volume, or go up a band
+  // and down a cup. This takes a band (even inch) and the cup position (the
+  // bust-minus-band difference, same number braFromMeasure returns as
+  // diffInches) and gives the nearest sisters on each side.
+  function braSisterSizes(band, diff) {
+    var b = Math.round(numify(band) / 2) * 2;
+    var d = Math.round(numify(diff));
+    if (!isFinite(b) || !isFinite(d) || d < 0) return { ok: false };
+    function make(bandIn, cupIdx) {
+      if (bandIn < 28 || bandIn > 48) return null;         // out of the usual range
+      if (cupIdx < 0 || cupIdx > BRA_US.length - 1) return null;
+      return {
+        band: bandIn,
+        cupUS: BRA_US[cupIdx], cupUK: BRA_UK[cupIdx],
+        usLabel: bandIn + BRA_US[cupIdx],
+        ukLabel: bandIn + BRA_UK[cupIdx]
+      };
+    }
+    var sisters = [];
+    // Two steps down and two up keep the same cup volume, clamped to the range.
+    for (var step = -2; step <= 2; step++) {
+      var s = make(b + step * 2, d - step);  // band up -> cup down, and vice versa
+      if (s) { s.isInput = step === 0; sisters.push(s); }
+    }
+    return {
+      ok: sisters.length > 0,
+      band: b,
+      diffInches: d,
+      input: make(b, d),
+      sisters: sisters
+    };
+  }
+
   // Gloves. The classic glove size is simply the circumference of your hand,
   // measured in inches around the knuckles of the dominant hand with the thumb
   // left out: a hand that measures 8 inches round is a size 8. So the number is
@@ -668,7 +705,7 @@
     kidsFromHeight: kidsFromHeight, convertKids: convertKids,
     RINGS: RINGS, ringFromCircumference: ringFromCircumference, ringFromDiameter: ringFromDiameter, convertRing: convertRing,
     HATS: HATS, hatLabel: hatLabel, hatFromCircumference: hatFromCircumference, convertHat: convertHat,
-    BRA_US: BRA_US, BRA_UK: BRA_UK, braFromMeasure: braFromMeasure,
+    BRA_US: BRA_US, BRA_UK: BRA_UK, braFromMeasure: braFromMeasure, braSisterSizes: braSisterSizes,
     GLOVES: GLOVES, gloveLabel: gloveLabel, gloveFromCircumference: gloveFromCircumference,
     beltFromWaist: beltFromWaist,
     pack: pack, unpack: unpack
