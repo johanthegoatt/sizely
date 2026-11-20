@@ -323,3 +323,29 @@ test("a silly waist is rejected so the unit gets checked", function () {
   assert.strictEqual(S.beltFromWaist(200, "cm").ok, false);
   assert.strictEqual(S.beltFromWaist("", "in").ok, false);
 });
+
+test("sister sizes keep the cup volume: band down one, cup up one", () => {
+  // A 34C (band 34, diff 3) -> sisters 32D and 36B around it.
+  const r = S.braSisterSizes(34, 3);
+  assert.strictEqual(r.ok, true);
+  const labels = r.sisters.map((s) => s.usLabel);
+  assert.ok(labels.includes("34C")); // the input itself
+  assert.ok(labels.includes("32D")); // one band down, one cup up
+  assert.ok(labels.includes("36B")); // one band up, one cup down
+  const input = r.sisters.find((s) => s.isInput);
+  assert.strictEqual(input.usLabel, "34C");
+});
+
+test("sister sizes line up with what braFromMeasure returns", () => {
+  const m = S.braFromMeasure(76, 91, "cm"); // underbust ~30in, bust ~36in
+  assert.strictEqual(m.ok, true);
+  const r = S.braSisterSizes(m.band, m.diffInches);
+  assert.ok(r.sisters.some((s) => s.usLabel === m.usLabel));
+});
+
+test("sister sizes don't run past the band range", () => {
+  const r = S.braSisterSizes(28, 1); // 28 is the smallest band
+  assert.ok(r.sisters.every((s) => s.band >= 28 && s.band <= 48));
+  // No 26 band below it.
+  assert.ok(!r.sisters.some((s) => s.band === 26));
+});
