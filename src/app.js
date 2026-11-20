@@ -204,7 +204,21 @@
       '<p class="msg">The band is the underbust rounded to the nearest even inch; each inch the bust is bigger is one cup. ' +
       (r.cupUS !== r.cupUK ? "US and UK cups differ at this size (US " + r.cupUS + ", UK " + r.cupUK + "). " : "") +
       (r.capped ? "This is past the chart's top cup, so treat it as “or larger”. " : "") +
-      "Brands vary a lot, so use this as a starting point and try it on." + "</p></div>";
+      "Brands vary a lot, so use this as a starting point and try it on." + "</p>";
+
+    // Sister sizes: same cup volume, a band either side, for when this one is
+    // out of stock or the band feels tight or loose.
+    var sis = S.braSisterSizes(r.band, r.diffInches);
+    if (sis.ok && sis.sisters.length > 1) {
+      var chips = sis.sisters.map(function (s) {
+        return '<span class="sister' + (s.isInput ? " is-input" : "") + '">' + s.usLabel +
+          ' <small>(' + s.ukLabel + ' UK)</small></span>';
+      }).join("");
+      html += '<div class="sisters"><h4>Sister sizes</h4>' +
+        '<p class="msg">Same cup volume, a band either side. If this one is sold out or the band feels tight or loose, try the next one along.</p>' +
+        '<div class="sister-row">' + chips + "</div></div>";
+    }
+    html += "</div>";
     host.innerHTML = html;
     if (T) T.react("ok");
   }

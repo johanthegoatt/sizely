@@ -157,3 +157,17 @@ body {
   .mode label { background: #322b24; }
   .cell, .note { background: #322b24; }
 }
+
+/* Bra sister sizes */
+.sisters { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.sisters h4 { margin: 0 0 4px; font-size: .95rem; }
+.sister-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.sister {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 6px 10px; border-radius: 999px;
+  background: #fff; border: 1px solid var(--line);
+  font-weight: 600; font-size: .95rem;
+}
+.sister small { color: var(--soft); font-weight: 400; }
+.sister.is-input { background: var(--accent); border-color: var(--accent); color: #fff; }
+.sister.is-input small { color: rgba(255,255,255,.85); }
